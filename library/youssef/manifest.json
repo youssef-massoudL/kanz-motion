@@ -1,0 +1,6 @@
+{
+  "owner": "Youssef",
+  "approval": "Ahmed's approval required before anything leaves this folder. All entries are unapproved drafts until then.",
+  "note": "One entry per draft asset, style, 3D element or animation, newest last. Fields: id, kind (object|style|3d|animation), file, date, request, tool, source, status (unapproved|approved), approved_by, approved_date.",
+  "entries": []
+}
