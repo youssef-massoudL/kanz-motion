@@ -41,7 +41,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from footage import (add_range_args, plan_segments, report, short_duration, source_words, voice_audio,
+from footage import (CutError, add_range_args, plan_from_args, report, short_duration, voice_audio,
                      write_transcript, write_wav)
 
 SW, SH = 1280, 720  # live-source frame size; read from the file below, these are only the fallback
@@ -169,7 +169,10 @@ def main():
         shutil.rmtree(proj / "assets" / old, ignore_errors=True)
     (proj / "audio").mkdir(exist_ok=True)
     tr = json.loads(Path(a.transcript).read_text(encoding="utf-8"))
-    segs = plan_segments(source_words(tr), [(a.start, a.end)] + [tuple(r) for r in a.also], a.tail, 0.05, a.join, a.exact_end)
+    try:
+        segs = plan_from_args(a, tr)
+    except CutError as err:
+        raise SystemExit(str(err))
     report(segs)
     w, h = probe(a.source)
     ch9 = h / a.zoom

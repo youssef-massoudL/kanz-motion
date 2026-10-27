@@ -10,6 +10,9 @@ Cut-out shorts (transcript.json cut_from) also:
              -> out/cuts-<version>.jpg; charcoal, flash, half-built and one-frame flags fail (SHORT-10)
   leak       every source range stops NEXT_WORD_GAP before the next source word; a tighter whole-word ending
              (last word end + up to 10 ms) warns for human listening instead (SHORT-3)
+  joins      every cut is heard (engine/joincheck.py, local faster-whisper): the word each side of the cut must be
+             the word in the uncut source, heard as surely, and no cut may fall inside a word (out/joins.json).
+             The leak check only reads numbers; this one passed nothing it could not hear (reels 7-12, 2026-10-26)
   title      a K.title, with the text from shorts/_titles.json (SHORT-4)
   freeze     duplicate frames (mpdecimate) in face and split windows: a run of 0.5 s or more fails
   fps        footage frames at the render's frame rate; the source's own rate is reported
@@ -246,6 +249,14 @@ def run(proj, mp4, version, allow=(), picture=True, partial=False):
         p, w = guards.leak_checks(cut, gap=gap)
         problems += p
         warns += w
+        try:
+            import joincheck
+            p, w, lines = joincheck.check(proj)
+            problems += p
+            warns += w
+            info += ["joins heard (out/joins.json):"] + lines if lines else []
+        except ImportError:
+            warns.append("join check skipped: faster-whisper is not installed; listen to every cut before shipping")
         if ending_errors and guards.leak_checks({"ranges": cut.get("ranges", [])[-1:]}, gap=gap)[1]:
             last = last_word_end(proj)
             if last is not None and duration(mp4) >= last - 1e-6:

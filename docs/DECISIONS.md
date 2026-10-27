@@ -360,3 +360,21 @@ existing runtime behavior. The four approved drawn-scene references are the expl
   opening words; no still photo, still picture or static hero icon as the first shot. **Replaces** photo openings as
   the preferred default (quiz 2026-10-20, Q4) and the static hero icon (2026-10-11). Place photos stay for later boards.
   Shorts keep his face in the first 3 s (SHORT-4). Rules: HOOK-1..4.
+
+## 2026-10-23
+
+- **Never a woman from behind** (Ahmed, review of the workshop reels: "Don't show the girl from her back ever again").
+  `kanz-npc-crowd-back-v01` (two men and a woman seen from behind) is retired in the object manifest, so `make.py ship`
+  stops on it; it had stayed approved and came back in reel 8 of the episode reels on 2026-10-26. Men seen from behind:
+  `kanz-npc-gamblers-back-v01`. Rule: IMG-12.
+
+## 2026-10-26
+
+- **Cuts sit in real pauses, and ship listens to them** (Ahmed, reels 7-12: "the cuts are so bad and it often cuts the
+  word when saying it", "every reel the hook is cut mid-sentence", after many notes on the same thing). Causes found:
+  the episode transcript ran up to 0.25 s early against the joined MP4 (the WAV was joined from the parts' audio, each
+  ~60 ms shorter than its video); cuts sat in 30-80 ms dips inside running speech with an 0.08 s fade ending on the
+  word; `pauses.py fix` wrote those guessed edges into transcript.json, so the leak check passed its own input.
+  **Replaces** cutting on Whisper word edges (`--exact-end` + `pauses.py fix`): `footage.py` snaps every edge into a
+  measured pause or refuses the cut, and ship runs `joincheck.py` (the word each side of every cut, heard on the cut and
+  on the uncut source). Hooks end where he actually pauses. Rules: SHORT-3, SHORT-13.

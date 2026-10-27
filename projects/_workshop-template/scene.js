@@ -6,7 +6,7 @@
  * split), his face again for his own point at the end (SHORT-7).
  * The preset on top of the repo defaults: dissolves instead of hard face cuts, boards fade out before an unrelated board
  * shows (K.boardSwap), price moves as candles, sounds only on what is on screen (K.onScreenSounds), men-only characters
- * (never kanz-npc-crowd-back-v01.png: it shows a woman from behind; no kanz-npc-f01-*).
+ * (never kanz-npc-crowd-back-v01.png, now retired: it shows a woman from behind, IMG-12; no kanz-npc-f01-*).
  * Anchors: K.T() skips the shown words of a translated line (`Arabic {{English}}`), so anchor on the spoken words in {{ }}.
  */
 const { T } = K;

@@ -1,9 +1,17 @@
 """Cut a short from a long Kanz video into a project: face frames, voice and word timings.
 
     python engine/footage.py <project_dir> <source.mp4> <transcript.raw.json> <start> <end> [--also S E ...]
-        [--video-from S] [--tv-until S] [--tail 0.4] [--exact-end]
+        [--video-from S] [--tv-until S] [--tail 0.4] [--no-snap | --exact-end]
 
-  start, end    seconds in the source. The audio ends after the last word that ends inside start..end, plus the ending
+  start, end    seconds in the source. Every edge snaps into a real gap measured on the source audio (pauses.find_gaps:
+                75 ms or more, 22 dB under his level) within 0.35 s of the given second: the audio starts in the gap
+                before the first word (0.06 s lead-in, 15 ms fade in the gap) and stops in the gap after the last word
+                (up to 0.15 s, or --tail on the final range, 0.05 s before the next word, the fade after the word).
+                An edge with no gap there stops the cut and lists the gaps nearby (`pauses.py gaps`): pick one, or move
+                the edge to a sentence end that has one. Whisper word edges glue words and run up to 0.2 s late, and
+                cuts on them clipped the last sound of words in reels 7-12 (2026-10-26).
+  --no-snap     the old Whisper-word ending guard below, for a reel that must cut where there is no gap (warns).
+                The audio ends after the last word that ends inside start..end, plus the ending
                 guard (--tail, default 0.4 s: Arabic final consonants decay past the ASR word end; Ahmed's "last word
                 cut off" on casino A/E/F/H and live shorts), stopped 0.05 s before the next source word so no part of
                 the next sentence leaks in. If that margin reaches into the word, keep the whole word plus a 10 ms
@@ -39,20 +47,103 @@ GAP = NEXT_WORD_GAP   # compatibility for callers using the old name
 JOIN = 0.25   # s of total pause at every voice join (SHORT-13)
 FADE = 0.15   # s, the longest fade-out; it always sits inside the tail
 SR = 48000
+SNAP = 0.35   # s around a given edge searched for a real gap
+LEAD_IN = 0.06  # s of gap kept before the first word of a snapped range
+JOIN_TAIL = 0.15  # s of gap kept after the last word of a snapped range that is not the last
+EDGE_FADE = 0.015  # s, the fade-in of a snapped range (it sits in the gap)
+
+
+class CutError(ValueError):
+    pass
+
+
+def nearest_gap(gaps, t, window=SNAP):
+    """The gap containing t, else the nearest one within `window`, else None."""
+    def dist(g):
+        return 0.0 if g[0] <= t <= g[1] else min(abs(g[0] - t), abs(g[1] - t))
+    near = [g for g in gaps if dist(g) <= window]
+    return min(near, key=dist) if near else None
+
+
+def snap_ranges(src, ranges, words=None, window=SNAP, min_gap=None, below=None):
+    """[(gap_in, gap_out)] for each range: the real gaps its edges snap to. Raises CutError naming every edge without
+    one, with the gaps within 3 s and their words, so the cut moves to a real pause instead of into a word."""
+    import pauses
+    out, bad = [], []
+    for s, e in ranges:
+        found = {}
+        for name, t in (("start", s), ("end", e)):
+            g = nearest_gap(pauses.find_gaps(src, t - window, t + window, min_len=min_gap or pauses.MIN_GAP,
+                                             below=below or pauses.BELOW), t, window)
+            found[name] = g
+            if g is None:
+                near = pauses.find_gaps(src, t - 3, t + 3, min_len=0.04, below=18)
+                lines = []
+                for a, b, m in near:
+                    ctx = ""
+                    if words:
+                        before = [w["w"] for w in words if w["end"] <= a + 0.3][-3:]
+                        after = [w["w"] for w in words if w["start"] >= b - 0.3][:3]
+                        ctx = f"  ...{' '.join(before)} | {' '.join(after)}..."
+                    lines.append(f"    {a:.2f}-{b:.2f} ({round((b - a) * 1000)} ms, {m:.0f} dB){ctx}")
+                bad.append(f"  range {s}-{e}: no real gap within {window} s of its {name} ({t}); shorter or shallower "
+                           "dips within 3 s (usable with --min-gap/--below only after `joincheck.py listen`):\n"
+                           + ("\n".join(lines) or "    none"))
+        out.append((found["start"], found["end"]))
+    if bad:
+        raise CutError("a cut must sit in a real pause, not between glued words (SHORT-3/13):\n" + "\n".join(bad))
+    return out
 
 
 def source_words(tr):
     return sorted((w for s in tr["segments"] for w in s["words"]), key=lambda w: w["start"])
 
 
-def plan_segments(words, ranges, tail=TAIL, gap=NEXT_WORD_GAP, join=JOIN, exact=False):
+def plan_snapped(words, ranges, snaps, tail=TAIL, gap=NEXT_WORD_GAP, join=JOIN):
+    """plan_segments for edges snapped into measured gaps (snap_ranges): the voice starts where gap_in ends and stops
+    where gap_out starts; Whisper words are kept by their middle and clamped to those measured edges."""
+    segs, out = [], 0.0
+    for k, ((s, e), (gin, gout)) in enumerate(zip(ranges, snaps)):
+        first, last = gin[1], gout[0]
+        if last <= first:
+            raise CutError(f"range {s}-{e}: its start and end snap into the same gap ({gin[0]}-{gin[1]})")
+        inside, clamp = [], {}
+        for w in words:
+            if first - 0.05 <= (w["start"] + w["end"]) / 2 <= last + 0.05:
+                a = round(max(w["start"], first), 3)
+                clamp[id(w)] = (a, round(max(min(w["end"], last), a + 0.03), 3))
+                inside.append({**w, "start": a, "end": clamp[id(w)][1]})
+        if not inside:
+            raise CutError(f"range {s}-{e}: no transcript word between {first} and {last}")
+        nxt = next((w["start"] for w in words if (w["start"] + w["end"]) / 2 > last + 0.05), None)
+        nxt = gout[1] if nxt is not None else None          # the next voice starts where the gap ends (measured)
+        keep = tail if k == len(ranges) - 1 else JOIN_TAIL
+        end = last + keep if nxt is None else min(last + keep, nxt - gap)
+        end = max(end, last + 0.01)   # a gap under 60 ms keeps the whole word + 10 ms (ship warns: listen)
+        start = max(gin[0], first - LEAD_IN)
+        lead = 0.0
+        if k:
+            prev = segs[-1]
+            lead = round(max(0.0, join - (prev["src_end"] - prev["last_word_end"]) - (first - start)), 3)
+        out += lead
+        segs.append({"src_start": round(start, 3), "src_end": round(end, 3), "last_word_end": last, "next_word_start": nxt,
+                     "voice_start": first, "lead": lead, "out_start": round(out, 3), "words": inside, "clamped": False,
+                     "word_guard": False, "snapped": True, "clamp": clamp})
+        out += round(end, 3) - round(start, 3)
+    return segs
+
+
+def plan_segments(words, ranges, tail=TAIL, gap=NEXT_WORD_GAP, join=JOIN, exact=False, snaps=None):
     """Where each source range really ends, and where it lands in the short.
 
-    words: every source word ({start, end}), sorted. ranges: [(start, end), ...] in source seconds.
+    words: every source word ({start, end}), sorted. ranges: [(start, end), ...] in source seconds. snaps: the measured
+    gaps from snap_ranges (the default route); without them the edges come from the Whisper words (--no-snap).
     Returns one dict per range: src_start, src_end (where its audio stops), last_word_end, next_word_start (None at
     the end of the source), lead (added silence before it, within the join budget), out_start (where its
     first source second lands in the short), words (the range's words) and clamped (True when the next word cut the
     tail short)."""
+    if snaps is not None and not exact:
+        return plan_snapped(words, ranges, snaps, tail, gap, join)
     segs, out = [], 0.0
     for k, (s, e) in enumerate(ranges):
         inside = [w for w in words if w["start"] >= s - 0.05 and w["end"] <= e + 0.05]
@@ -109,9 +200,11 @@ def voice_audio(src, segs, exact=False):
         if g["lead"]:
             parts.append(np.zeros((int(round(g["lead"] * SR)), 2), np.float32))
         a = decode(src, g["src_start"], g["src_end"] - g["src_start"])
-        fi = min(len(a), int(0.02 * SR))
+        fi = min(len(a), int((EDGE_FADE if g.get("snapped") else 0.02) * SR))
         a[:fi] *= ramp(fi, True)
-        if exact:
+        if g.get("snapped"):
+            fade = max(0.0, g["src_end"] - g["last_word_end"])  # the whole kept gap: it starts where the voice stopped
+        elif exact:
             fade = 0.08
         elif g.get("word_guard"):
             fade = 0.01
@@ -134,9 +227,12 @@ def write_transcript(proj, tr, source, segs, video_from):
     word end, its audio end and the next source word, in source seconds; out_start on the short's timeline)."""
     segments = []
     for g in segs:
-        off, mine = g["out_start"] - g["src_start"], {id(w) for w in g["words"]}
+        off = g["out_start"] - g["src_start"]
+        # snapped ranges keep each source word's times clamped to the measured voice edges (by the word's id)
+        clamp = g.get("clamp") or {id(w): (w["start"], w["end"]) for w in g["words"]}
         for s in tr["segments"]:
-            ws = [{**w, "start": round(w["start"] + off, 3), "end": round(w["end"] + off, 3)} for w in s["words"] if id(w) in mine]
+            ws = [{**w, "start": round(clamp[id(w)][0] + off, 3), "end": round(clamp[id(w)][1] + off, 3)}
+                  for w in s["words"] if id(w) in clamp]
             if ws:
                 segments.append({"start": ws[0]["start"], "end": ws[-1]["end"], "text": " ".join(w["w"] for w in ws), "words": ws})
     out = {k: v for k, v in tr.items() if k not in ("segments", "events", "sha256", "script_sha256")}
@@ -153,6 +249,13 @@ def write_transcript(proj, tr, source, segs, video_from):
 def report(segs):
     for g in segs:
         tail = g["src_end"] - g["last_word_end"]
+        if g.get("snapped"):
+            ws = g["words"]
+            nxt = f", next voice at {g['next_word_start']:.2f}" if g["next_word_start"] is not None else ""
+            print(f"range {g['src_start']:.2f}-{g['src_end']:.2f}: voice {g['voice_start']:.2f}-{g['last_word_end']:.2f}"
+                  f" «{ws[0]['w'].strip()} ... {ws[-1]['w'].strip()}», {g['voice_start'] - g['src_start']:.2f} s in,"
+                  f" {tail:.2f} s out{nxt}" + (f", {g['lead']:.2f} s added before it" if g["lead"] else ""))
+            continue
         why = f" (stopped {NEXT_WORD_GAP:.2f} s before the next word)" if g["clamped"] and not g.get("word_guard") else ""
         print(f"range {g['src_start']:.2f}-{g['src_end']:.2f}: last word ends {g['last_word_end']:.2f}, tail {tail:.2f} s{why}"
               + (f", {g['lead']:.2f} s pause before it" if g["lead"] else ""))
@@ -205,6 +308,23 @@ def add_range_args(ap):
     ap.add_argument("--tail", type=float, default=TAIL)
     ap.add_argument("--join", type=float, default=JOIN)
     ap.add_argument("--exact-end", action="store_true")
+    ap.add_argument("--no-snap", action="store_true", help="edges from Whisper words instead of measured gaps (warns)")
+    ap.add_argument("--min-gap", type=float, help="shortest gap an edge may snap to (default 0.075 s); lower it only "
+                    "for an edge you listened to (`joincheck.py listen`), e.g. a 60 ms true silence between two takes")
+    ap.add_argument("--below", type=float, help="dB under his level that counts as a gap (default 22); lower it only "
+                    "with --min-gap for listened edges")
+
+
+def plan_from_args(a, tr):
+    """The segments for the parsed arguments: snapped into measured gaps unless --no-snap / --exact-end."""
+    words = source_words(tr)
+    ranges = [(a.start, a.end)] + [tuple(r) for r in a.also]
+    snaps = None
+    if a.no_snap or a.exact_end:
+        print("WARNING: edges from Whisper words, not measured gaps: words can be clipped; the ship join check listens")
+    else:
+        snaps = snap_ranges(a.source, ranges, words, min_gap=a.min_gap, below=a.below)
+    return plan_segments(words, ranges, a.tail, GAP, a.join, a.exact_end, snaps)
 
 
 def main():
@@ -222,7 +342,10 @@ def main():
         f.unlink()
     (proj / "audio").mkdir(exist_ok=True)
     tr = json.loads(Path(a.transcript).read_text(encoding="utf-8"))
-    segs = plan_segments(source_words(tr), [(a.start, a.end)] + [tuple(r) for r in a.also], a.tail, GAP, a.join, a.exact_end)
+    try:
+        segs = plan_from_args(a, tr)
+    except CutError as err:
+        raise SystemExit(str(err))
     report(segs)
     crop = "crop=ih*9/16:ih,scale=1080:1920:flags=lanczos"
     first, v0_first = 1, None

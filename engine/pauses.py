@@ -2,14 +2,16 @@
 
     python engine/pauses.py levels <source.mp4> <start> <end>          # dB RMS in 50 ms steps, with a bar
     python engine/pauses.py quiet <source.mp4> <t> [<t> ...]           # quiet runs >= 80 ms within +-1.2 s of each t
+    python engine/pauses.py gaps <source.mp4> <start> <end>            # real gaps footage.py can cut in, with words
     python engine/pauses.py fix <project> <range> <last_end> <next_start> [<range> <last_end> <next_start> ...]
 
-Local Whisper (no ElevenLabs key) glues words in fast speech: each next word "starts" the instant the last one ends, so
-footage.py records next_word_start == last_word_end at every cut and the ship check (SHORT-3) reads a next-word leak
-that is not in the audio. Pick each cut inside a quiet run (`quiet`, `levels`), cut with `--exact-end`, then write the
-measured word end and next word start into the short's transcript.json (`fix`). The originals stay under
-cut_from.whisper_ranges; audio and frames are untouched. A breath right before the next word has no quiet run long
-enough to end in: the ship check reads it as the voice still sounding (needs an ear, or a different end).
+Local Whisper (no ElevenLabs key) glues words in fast speech and its word times run up to 0.2 s late, so cuts placed
+on Whisper edges clip words. footage.py now snaps every cut into a real gap (`find_gaps`: a run of 75 ms or more at
+least 22 dB under the speaker's level) and refuses an edge with none; `gaps` lists the candidates with their words.
+`quiet` (12% of the loud level) also finds quiet consonants (final م, ف, س, stop closures) inside running speech:
+do not cut there. `fix` is kept for old projects only: writing guessed edges into transcript.json makes the ship leak
+check verify its own input (reels 7-12, 2026-10-26: «الفهم» heard as «الفيديو» and still "passed"); the ship join
+check (engine/joincheck.py) listens to every join instead.
 """
 import argparse
 import json
@@ -55,6 +57,45 @@ def quiet(src, times):
         print(f"{t:9.2f}: quiet {shown}" + (f"   -> nearest {best[0]:.2f}-{best[1]:.2f}" if best else ""))
 
 
+MIN_GAP = 0.075   # s, the shortest run footage.py may cut in (it cuts at least 25 ms after the voice, 50 ms before it)
+BELOW = 22.0      # dB under the speaker's level (70th percentile of 10 ms frames around the window)
+
+
+def find_gaps(src, t0, t1, min_len=MIN_GAP, below=BELOW, ref=3.0):
+    """Real gaps between t0 and t1 (source seconds) as [(start, end, min_db)]: runs of 10 ms frames at least `below` dB
+    under the speaker's level, `min_len` or longer. The level comes from +-`ref` s around the window so a quiet stretch
+    does not lower its own bar. A run touching the window's edge is extended past it, so its true start/end is kept."""
+    lo = max(0.0, t0 - ref)
+    a, hop = pcm(src, lo, t1 + ref - lo), SR // 100
+    n = len(a) // hop
+    if not n:
+        return []
+    db = 20 * np.log10(np.sqrt((a[:n * hop].reshape(n, hop) ** 2).mean(1)) + 1e-9)
+    voiced = db[db > -90]
+    level = np.percentile(voiced, 70) if len(voiced) else -20.0
+    low = list(db < level - below) + [False]
+    out, start = [], None
+    for i, q in enumerate(low):
+        if q and start is None:
+            start = i
+        elif not q and start is not None:
+            s, e = lo + start / 100, lo + i / 100
+            if i - start >= round(min_len * 100) and e > t0 and s < t1:
+                out.append((round(s, 2), round(e, 2), round(float(db[start:i].min()), 1)))
+            start = None
+    return out
+
+
+def gaps(src, t0, t1, words=None):
+    for s, e, m in find_gaps(src, t0, t1):
+        ctx = ""
+        if words:
+            before = [w["w"] for w in words if w["end"] <= s + 0.3][-4:]
+            after = [w["w"] for w in words if w["start"] >= e - 0.3][:4]
+            ctx = f"  ...{' '.join(before)} | {' '.join(after)}..."
+        print(f"{s:9.2f}-{e:9.2f}  {round((e - s) * 1000):5d} ms  min {m:6.1f} dB{ctx}")
+
+
 def fix(proj, triples):
     p = Path(proj) / "transcript.json"
     tr = json.loads(p.read_text(encoding="utf-8"))
@@ -75,6 +116,11 @@ def main():
     lv.add_argument("source")
     lv.add_argument("start", type=float)
     lv.add_argument("end", type=float)
+    gp = sub.add_parser("gaps")
+    gp.add_argument("source")
+    gp.add_argument("start", type=float)
+    gp.add_argument("end", type=float)
+    gp.add_argument("--transcript", help="transcript.raw.json, to show the words around each gap")
     qt = sub.add_parser("quiet")
     qt.add_argument("source")
     qt.add_argument("times", type=float, nargs="+")
@@ -84,6 +130,12 @@ def main():
     a = ap.parse_args()
     if a.cmd == "levels":
         levels(a.source, a.start, a.end)
+    elif a.cmd == "gaps":
+        words = None
+        if a.transcript:
+            tr = json.loads(Path(a.transcript).read_text(encoding="utf-8"))
+            words = sorted((w for s in tr["segments"] for w in s["words"]), key=lambda w: w["start"])
+        gaps(a.source, a.start, a.end, words)
     elif a.cmd == "quiet":
         quiet(a.source, a.times)
     else:

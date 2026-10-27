@@ -17,10 +17,14 @@ scene but not render it).
    the copied `lint-ok.json`: its waivers are for the voiceless template stub only and would hide real findings.
    Then `python engine/footage.py projects/short-<slug> <source.mp4> <transcript.raw.json> <start> <end>
    --video-from <first clean frame>`: face frames (git-ignored), voice and word timings. Start on a word, drop lines that
-   point back to the long video, end before the next sentence starts (SHORT-3). The ending guard is automatic: the audio
-   aims for 0.4 s after the last word, with a 0.05 s next-word margin and the fade inside the tail. Listen to the untrimmed
-   source: the whole audible last word wins over that margin; a guard conflict needs a human ear. Add quiet after a
-   verified cut, never cut into the word or leak the next sentence (SHORT-3; `--exact-end` retains the old behaviour).
+   point back to the long video, end before the next sentence starts (SHORT-3). Every edge snaps into a real pause
+   measured on the source (75 ms+, 22 dB under his voice): the audio starts 0.06 s before the first word and stops in the
+   pause after the last word, the fade after the word, never on it. An edge with no pause stops the cut and lists the
+   dips nearby: move it to a sentence end that has one (`python engine/pauses.py gaps <source> <a> <b> --transcript ...`,
+   `python engine/joincheck.py listen <source> <t>` to hear each side), or, for a dip you listened to, pass
+   `--min-gap/--below`. The transcript must be on the source's own timeline: a WAV joined from the parts' audio drifted
+   0.25 s against the joined MP4 (2026-10-26). `--no-snap`/`--exact-end` keep the old Whisper-edge behaviour (they clipped
+   words). Ship hears every cut (`joincheck.py`): a changed or unsure word at a cut fails.
    Join passages with `--also S E` (repeatable); aim for total silence about 0.25 s at each join (SHORT-13).
    Confirm boundaries on the source waveform and by listening, never from transcript edges alone. If a syllable sounds
    clipped, check for the source's own jump cut and show short listening options before choosing (Casino H v12 used 0.2 s).

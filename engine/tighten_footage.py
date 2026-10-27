@@ -138,6 +138,9 @@ def tighten(proj, max_gap=0.3, min_removed=0.12, keep_after=0.2, analyse=True, f
         trk.write_text(json.dumps(j), encoding="utf-8")
     print("seams at (new timeline, s):", t["tightened"]["cuts_at_s"])
     for r in t.get("cut_from", {}).get("ranges", []):
+        # out_end: where the range ends on the tightened timeline (its pauses got shorter, so out_start + length no longer
+        # lands on its end; joincheck listened 0.5-4 s off and failed sound cuts, package-01 R02 2026-10-26)
+        r["out_end"] = round(remap(r["out_start"] + r["end"] - r["start"]), 3)
         r["out_start"] = round(remap(r["out_start"]), 3)
     tr.write_text(json.dumps(t, ensure_ascii=False, indent=1), encoding="utf-8")
     if analyse:

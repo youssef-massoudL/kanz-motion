@@ -209,8 +209,8 @@ rebuild it.
 The notes Ahmed kept repeating on the shorts are engine defaults and failing checks now (docs/RULES.md lists each rule
 with its check; `projects/_guards-demo` shows every one, clean and broken):
 
-- **Footage tools** (`footage.py`, `footage_track.py`): the ending guard (last word + 0.4 s, stopped before the next
-  source word), `--also S E` voice joins with a 0.25 s pause, dead air tightened by default for workshops, then
+- **Footage tools** (`footage.py`, `footage_track.py`): every edge snapped into a measured pause (`pauses.py gaps`;
+  no pause, no cut), `--also S E` voice joins with a 0.25 s pause, dead air tightened by default for workshops, then
   `engine/faces.py`: `assets/faces.json` (eyes-and-mouth box per frame) and `assets/freezes.json`.
 - **Runtime** with `K.pace({ defaults: "2026-10-18" })`: `K.title()` takes its text from `shorts/_titles.json` and its
   height off his face; subtitles move off his face; `K.split` eases to and from a full board (cuts to and from his
