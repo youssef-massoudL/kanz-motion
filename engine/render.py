@@ -12,6 +12,7 @@ import argparse
 import json
 import random
 import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -19,12 +20,21 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
 SR = 48000
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # Arabic in the final print on Windows consoles
 
 
 def decode(path):
     pcm = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-ac", "2", "-ar", str(SR), "-f", "s16le", "-"],
                          capture_output=True, check=True).stdout
     return np.frombuffer(pcm, dtype=np.int16).astype(np.float32).reshape(-1, 2) / 32768
+
+
+def load_voice(proj, seconds=60.0):
+    """The project's voice, or silence when there is none (sound-effect-only clips such as intros)."""
+    f = proj / "audio" / "voice.wav"
+    if f.exists():
+        return decode(f)
+    return np.zeros((int(seconds * SR) + SR, 2), np.float32)
 
 
 def env_db(x, win):
@@ -47,6 +57,7 @@ def smooth_gain(g_db, attack, release):
 SFX_TARGET = -18.0  # loudest-50 ms RMS every SFX file is levelled to before its scene gain (mix 2)
 
 
+TARGET_LUFS = -16.0  # K.targetLufs lowers it for SFX-only exports whose voice is added later (2026-10-19)
 BED_UNDER_VOICE = 21.0  # room tone sits this many dB under the voice's median speech level
 
 
@@ -72,7 +83,7 @@ def mix_audio_v2(proj, cues, duration, out, t0=0.0, bed=None):
     """Mix 2 (Ahmed 2026-10-11: "sometimes the sound effects are too loud"). Library files differ by up to
     20 dB inside one category, so every file is levelled first; the SFX bus ducks ~5 dB under speech and
     can never rise above the voice; then the whole mix goes to -16 LUFS with a -1 dBFS peak limit."""
-    voice = decode(proj / "audio" / "voice.wav")
+    voice = load_voice(proj)
     n = int((duration - t0) * SR) + SR
     vbus = np.zeros((n, 2), np.float32)
     v = voice[int(t0 * SR):][:n]
@@ -123,7 +134,7 @@ def mix_audio_v2(proj, cues, duration, out, t0=0.0, bed=None):
     meas = subprocess.run(["ffmpeg", "-i", str(raw), "-af", "ebur128", "-f", "null", "-"], capture_output=True, text=True).stderr
     lufs = float(meas.rsplit("I:", 1)[1].split("LUFS")[0])
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(raw), "-af",
-                    f"volume={-16.0 - lufs:.2f}dB,alimiter=limit=0.891:level=false:latency=true", str(out)], check=True)
+                    f"volume={TARGET_LUFS - lufs:.2f}dB,alimiter=limit=0.891:level=false:latency=true", str(out)], check=True)
     raw.unlink()
     return sorted(used)
 
@@ -131,7 +142,7 @@ def mix_audio_v2(proj, cues, duration, out, t0=0.0, bed=None):
 def mix_audio(proj, cues, duration, out, t0=0.0, mix=1, bed=None):
     if mix == 2:
         return mix_audio_v2(proj, cues, duration, out, t0, bed)
-    voice = decode(proj / "audio" / "voice.wav")
+    voice = load_voice(proj)
     n = int((duration - t0) * SR) + SR
     bus = np.zeros((n, 2), np.float32)
     v = voice[int(t0 * SR):][:n]
@@ -267,6 +278,9 @@ def main():
         under = page.evaluate("K.bedUnder || null")  # per-video room-tone level, dB under the voice (Ahmed 2026-10-13: too loud)
         if under:
             globals()["BED_UNDER_VOICE"] = float(under)
+        tgt = page.evaluate("K.targetLufs || null")
+        if tgt:
+            globals()["TARGET_LUFS"] = float(tgt)
         browser.close()
     audio = out_dir / f"_{name}-audio.wav"
     used = mix_audio(proj, cues, t1, audio, a.t0, mix, bed)

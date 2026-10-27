@@ -2,5 +2,136 @@
   "owner": "Youssef",
   "approval": "Ahmed's approval required before anything leaves this folder. All entries are unapproved drafts until then.",
   "note": "One entry per draft asset, style, 3D element or animation, newest last. Fields: id, kind (object|style|3d|animation), file, date, request, tool, source, status (unapproved|approved), approved_by, approved_date.",
-  "entries": []
+  "entries": [
+    {
+      "id": "youssef-puppet-strings-v01",
+      "kind": "object",
+      "file": "library/youssef/objects/youssef-puppet-strings-v01.svg",
+      "date": "2026-10-16",
+      "request": "Youssef 2026-10-16: storyboard + scene for the 90 s psychological-biases Reel (projects/psych-biases) (puppet strings)",
+      "tool": "Claude, vector SVG (make_props.py), placeholder; photographic version needs Codex",
+      "source": "original",
+      "status": "unapproved"
+    },
+    {
+      "id": "youssef-sparkler-v01",
+      "kind": "object",
+      "file": "library/youssef/objects/youssef-sparkler-v01.svg",
+      "date": "2026-10-16",
+      "request": "Youssef 2026-10-16: storyboard + scene for the 90 s psychological-biases Reel (projects/psych-biases) (sparkler)",
+      "tool": "Claude, vector SVG (make_props.py), placeholder; photographic version needs Codex",
+      "source": "original",
+      "status": "unapproved"
+    },
+    {
+      "id": "youssef-polaroid-v01",
+      "kind": "object",
+      "file": "library/youssef/objects/youssef-polaroid-v01.svg",
+      "date": "2026-10-16",
+      "request": "Youssef 2026-10-16: storyboard + scene for the 90 s psychological-biases Reel (projects/psych-biases) (old polaroid frame)",
+      "tool": "Claude, vector SVG (make_props.py), placeholder; photographic version needs Codex",
+      "source": "original",
+      "status": "unapproved"
+    },
+    {
+      "id": "youssef-paper-plane-v01",
+      "kind": "object",
+      "file": "library/youssef/objects/youssef-paper-plane-v01.svg",
+      "date": "2026-10-16",
+      "request": "Youssef 2026-10-16: storyboard + scene for the 90 s psychological-biases Reel (projects/psych-biases) (red paper plane)",
+      "tool": "Claude, vector SVG (make_props.py), placeholder; photographic version needs Codex",
+      "source": "original",
+      "status": "unapproved"
+    },
+    {
+      "id": "youssef-mirror-v01",
+      "kind": "object",
+      "file": "library/youssef/objects/youssef-mirror-v01.svg",
+      "date": "2026-10-16",
+      "request": "Youssef 2026-10-16: storyboard + scene for the 90 s psychological-biases Reel (projects/psych-biases) (mirror (not yet used in the scene))",
+      "tool": "Claude, vector SVG (make_props.py), placeholder; photographic version needs Codex",
+      "source": "original",
+      "status": "unapproved"
+    },
+    {
+      "id": "youssef-folded-map-v01",
+      "kind": "object",
+      "file": "library/youssef/objects/youssef-folded-map-v01.svg",
+      "date": "2026-10-16",
+      "request": "Youssef 2026-10-16: storyboard + scene for the 90 s psychological-biases Reel (projects/psych-biases) (folded paper map)",
+      "tool": "Claude, vector SVG (make_props.py), placeholder; photographic version needs Codex",
+      "source": "original",
+      "status": "unapproved"
+    },
+    {
+      "id": "youssef-blueprint-v01",
+      "kind": "object",
+      "file": "library/youssef/objects/youssef-blueprint-v01.svg",
+      "date": "2026-10-16",
+      "request": "Youssef 2026-10-16: storyboard + scene for the 90 s psychological-biases Reel (projects/psych-biases) (blueprint plan sheet)",
+      "tool": "Claude, vector SVG (make_props.py), placeholder; photographic version needs Codex",
+      "source": "original",
+      "status": "unapproved"
+    },
+    {
+      "id": "youssef-door-v01",
+      "kind": "object",
+      "file": "library/youssef/objects/youssef-door-v01.svg",
+      "date": "2026-10-16",
+      "request": "Youssef 2026-10-16: storyboard + scene for the 90 s psychological-biases Reel (projects/psych-biases) (door)",
+      "tool": "Claude, vector SVG (make_props.py), placeholder; photographic version needs Codex",
+      "source": "original",
+      "status": "unapproved"
+    },
+    {
+      "id": "youssef-iris-v01",
+      "kind": "object",
+      "file": "library/youssef/objects/youssef-iris-v01.svg",
+      "date": "2026-10-16",
+      "request": "Youssef 2026-10-16: storyboard + scene for the 90 s psychological-biases Reel (projects/psych-biases) (iris with lavender rings)",
+      "tool": "Claude, vector SVG (make_props.py), placeholder; photographic version needs Codex",
+      "source": "original",
+      "status": "unapproved"
+    },
+    {
+      "id": "irisDive",
+      "kind": "animation",
+      "file": "runtime/kanz-youssef.js (K.lab.irisDive)",
+      "date": "2026-10-16",
+      "request": "Youssef 2026-10-16: storyboard + scene for the 90 s psychological-biases Reel (projects/psych-biases)",
+      "tool": "Claude, seekable GSAP",
+      "source": "original",
+      "status": "unapproved"
+    },
+    {
+      "id": "eye-art-3d",
+      "kind": "3d",
+      "file": "library/youssef/3d/eye/eye-art.html (+ render_eye.py)",
+      "date": "2026-10-17",
+      "request": "Youssef: painted neutral eye with candlestick chart in the pupil, for the psych-biases hook",
+      "tool": "Claude, three.js (no Blender)",
+      "source": "original",
+      "status": "unapproved"
+    },
+    {
+      "id": "eye (K.lab.eye)",
+      "kind": "animation",
+      "file": "runtime/kanz-youssef.js",
+      "date": "2026-10-17",
+      "request": "Same eye as a light SVG component used as the hook hero and the ending",
+      "tool": "Claude, seekable SVG + GSAP",
+      "source": "original",
+      "status": "unapproved"
+    },
+    {
+      "id": "psych-biases-v4-ui",
+      "kind": "animation",
+      "file": "projects/psych-biases/scene.js",
+      "date": "2026-10-19",
+      "request": "Youssef 2026-10-19: storyboard v4 applied as the video; UI pieces drawn in projects/psych-biases/scene.js: Telegram-style group chat (roles متداول/مستخدم/خبير), BUY button, news post with reactions, plan checklist, polaroid, price stickers, drawn-on cockpit and chart (trim paths)",
+      "tool": "Claude, DOM/SVG + GSAP (seekable)",
+      "source": "original",
+      "status": "unapproved"
+    }
+  ]
 }

@@ -42,3 +42,5 @@ render check still run; rendered is not posted.
 ## Changelog
 
 - 2026-10-16: lane created (`library/youssef/`, `runtime/kanz-youssef.js`, this file).
+- 2026-10-16: psychological-biases Reel draft (`projects/psych-biases`: storyboard.html, scene.js on estimated timing): 9 vector props in `library/youssef/objects/` and `K.lab.irisDive`, all unapproved.
+- 2026-10-19: psych-biases v4 (`projects/psych-biases/scene.js`, `storyboard-v4.html`): chart hook with drawn technical analysis, blindfold paper, trim-path cockpit, Telegram-style chat, BUY press, news post, plan checklist, polaroid, price stickers. UI pieces are unapproved drafts. Timing is still estimated (no voice, no ElevenLabs key); the previous eye/stage scene is kept as `scene.v2-lab-eye.js`.

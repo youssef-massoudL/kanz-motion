@@ -9,3 +9,4 @@ projects/*/audio/*.wav
 voice-clone/
 projects/*/audio/*.mp3
 projects/*/audio/_tts/
+dist/
