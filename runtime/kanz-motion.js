@@ -22,6 +22,7 @@
  *   K.mx.flow(b, o)                      coins stream from one point to another (money moving)
  *   K.mx.gauge(b, o) -> {to}             a dial with a needle that overshoots and settles; red past `danger`
  *   K.mx.ring(b, o) -> {to}              a progress ring with its number in the middle
+ *   K.mx.coin(b, o)                      one brand coin ($ or another symbol), the flow's coin on its own
  *   K.mx.light(b, o) -> {to, out}        a pool of light that slides to what is being said
  *   K.mx.track(v0) / K.mx.svg(...)       building blocks for new pieces (see "Adding a piece" in the guide)
  *
@@ -478,13 +479,15 @@
     for (let i = 0; i <= samples; i++) { const pt = line.getPointAtLength((L * i) / samples); along.push([pt.x, pt.y, i / samples]); }
     const fracOf = (p) => along.reduce((b, a) => (Math.hypot(a[0] - p[0], a[1] - p[1]) < Math.hypot(b[0] - p[0], b[1] - p[1]) ? a : b))[2];
     const labels = o.labels || [];
+    const shown = o.nodes || solid.map((_, i) => i); // o.nodes: indices that get a node (a price path: the turns only)
     const nodes = solid.map((p, i) => {
+      if (!shown.includes(i)) return null;
       const t = at + dur * invert(ease, Math.max(0.001, fracOf(p)));
       const tNode = i === 0 ? at : t;
       const c = svgEl("circle", { cx: p[0], cy: p[1], r: 16, fill: C.purpleBlack, stroke: C.lavender, "stroke-width": 6 }, s);
       gsap.set(c, { transformOrigin: "50% 50%" }); hide(c);
       tl.fromTo(c, { autoAlpha: 0, scale: 0.2 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: K.EASE.settle, immediateRender: false }, tNode);
-      if (labels[i]) K.tag(parent, labels[i], { x: p[0], y: p[1] + (o.labelBelow ? 62 : -62), at: tNode + 0.05, lav: i === solid.length - 1 && !o.ghost, sfx: i ? undefined : false });
+      if (labels[i]) K.tag(parent, labels[i], { x: p[0], y: p[1] + (o.labelBelow ? 62 : -62), at: tNode + 0.05, lav: i === solid.length - 1 && !o.ghost, sfx: o.sfx === false || !i || K.cues.some((c) => Math.abs(c.t - tNode - 0.05) < 0.3) ? false : undefined });
       return { c, t: tNode };
     });
     if (ghost > 0) {
@@ -512,6 +515,15 @@
     tx.textContent = symbol;
     return g;
   }
+  // one coin on its own (the flow's coin): a badge for "money", "the same dollars"
+  K.mx.coin = function (parent, o) {
+    const size = o.size || 90;
+    const s = K.mx.svg(parent, o.x, o.y, 1, 1);
+    coin(s, size, o.symbol || "$", o.loss);
+    if (o.at != null) { K.mx.enter(s, o.at, { style: o.style || "scale", key: "coin" }); sfx(o.at, "coin", 0.3, o); }
+    if (o.out != null) K.mx.exit(s, o.out);
+    return s;
+  };
   K.mx.flow = function (parent, o) {
     const at = o.at || 0, until = o.until || at + 2, rate = o.rate || 6, travel = o.travel || 0.95, size = o.size || 62;
     const [x0, y0] = o.from, [x1, y1] = o.to;
