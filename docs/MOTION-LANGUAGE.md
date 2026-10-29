@@ -133,7 +133,7 @@ Positions are board pixels; every piece takes `at`, most take `out`, `idea`, `wh
 | `K.mx.ring(b, {x, y, r, from, value, at, countAt, prefix, suffix})` | progress ring (0..1), counter-clockwise from the top, number in the middle |
 | `K.mx.gauge(b, {x, y, r, value, danger, at, label})` | a dial (0..1); the needle overshoots once; past `danger` the arc is red; `.to(t, v)` |
 | `K.mx.flow(b, {from: [x, y], to: [x, y], at, until, rate, travel, symbol, loss})` | coins stream along an arc |
-| `K.mx.path(b, {points, ghost, labels, labelBelow, nodes, at, dur})` | a line draws with a lit head, nodes pop as it passes (`nodes`: only these point indices); `ghost: true` makes the last point a dashed unknown |
+| `K.mx.path(b, {points, ghost, labels, labelBelow, nodes, color, at, dur})` | a line draws with a lit head, nodes pop as it passes (`nodes`: only these point indices); `ghost: true` makes the last point a dashed unknown |
 | `K.mx.coin(b, {x, y, size, symbol, at})` | one brand coin, the flow's coin on its own ("the same dollars") |
 | `K.mx.panel(b, {x, y, w, h, at, tone})` | the brand surface to hold other pieces |
 | `K.mx.enter(el, t, {style})` / `K.mx.exit(el, t)` | the brand entrance and exit for any element |

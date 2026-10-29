@@ -19,7 +19,7 @@
  *   K.mx.roll(b, o) -> {to}              odometer number, digits roll (integers), prefix/suffix
  *   K.mx.vessel(b, o) -> {to}            a container that fills or drains to a value; the surface settles after
  *   K.mx.shatter(b, o)                   a value slab that cracks and loses its top part (a loss, a cut, a fee)
- *   K.mx.path(b, o)                      a journey line that draws with a lit head; nodes pop; optional ghost end
+ *   K.mx.path(b, o)                      a journey line that draws with a lit head; nodes pop; optional ghost end; color
  *   K.mx.flow(b, o)                      coins stream from one point to another (money moving)
  *   K.mx.gauge(b, o) -> {to}             a dial with a needle that overshoots and settles; red past `danger`
  *   K.mx.ring(b, o) -> {to}              a progress ring with its number in the middle
@@ -462,7 +462,7 @@
     let roll = null;
     if (o.from != null) {
       roll = K.mx.roll(parent, { x: o.x, y: o.y - h - 80, from: o.from, value: o.to, countAt: br + 0.1, dur: 0.7, at: at + 0.25, size: o.size || 110, prefix: o.prefix, suffix: o.suffix, max: o.from, style: "rise", sfx: false });
-      tl.to(roll.el, { top: o.y - h * keep - 80, duration: 0.7, ease: K.EASE.land }, br + 0.3); // after the lost part has dropped clear
+      tl.to(roll.el, { top: o.y - h * keep - 80, duration: 0.7, ease: K.EASE.land }, br + 0.55); // once the lost part has fallen clear
       if (o.lossColor !== false) tl.to(roll.el, { color: C.red, duration: 0.25 }, br + 0.1);
     }
     if (o.out != null) { K.mx.exit(s, o.out); if (roll) K.mx.exit(roll.el, o.out); }
@@ -482,13 +482,14 @@
   const invert = (ease, f) => { let lo = 0, hi = 1; for (let i = 0; i < 30; i++) { const m = (lo + hi) / 2; if (ease(m) < f) lo = m; else hi = m; } return (lo + hi) / 2; };
   K.mx.path = function (parent, o) {
     const pts = o.points, at = o.at || 0, dur = o.dur || 1.6, ghost = o.ghost ? o.points.length - 1 : -1;
+    const col = o.color || C.lavender; // o.color: C.red for a loss or a what-if dive (LOOK-2)
     const solid = ghost > 0 ? pts.slice(0, ghost) : pts;
     const s = K.mx.svg(parent, 0, 0, 1000, 860);
     const d = smooth(solid);
     const under = svgEl("path", { d, fill: "none", stroke: rgba(C.white, 0.08), "stroke-width": 10, "stroke-linecap": "round" }, s);
-    const glow = svgEl("path", { d, fill: "none", stroke: C.lavender, "stroke-width": 14, "stroke-linecap": "round", opacity: flat() ? 0 : 0.45, filter: "url(#kmx-soft)" }, s);
-    const line = ink(svgEl("path", { d, fill: "none", stroke: C.lavender, "stroke-width": flat() ? 9 : 8, "stroke-linecap": "round" }, s));
-    const head = flat() ? paper(svgEl("circle", { r: 14, fill: C.lavender, stroke: C.purpleBlack, "stroke-width": 5 }, s))
+    const glow = svgEl("path", { d, fill: "none", stroke: col, "stroke-width": 14, "stroke-linecap": "round", opacity: flat() ? 0 : 0.45, filter: "url(#kmx-soft)" }, s);
+    const line = ink(svgEl("path", { d, fill: "none", stroke: col, "stroke-width": flat() ? 9 : 8, "stroke-linecap": "round" }, s));
+    const head = flat() ? paper(svgEl("circle", { r: 14, fill: col, stroke: C.purpleBlack, "stroke-width": 5 }, s))
       : svgEl("circle", { r: 13, fill: C.lavLight, filter: "url(#kmx-glow)" }, s);
     const L = line.getTotalLength();
     [glow, line].forEach((p) => p.setAttribute("stroke-dasharray", `${L} ${L + 10}`));
@@ -513,7 +514,7 @@
       if (!shown.includes(i)) return null;
       const t = at + dur * invert(ease, Math.max(0.001, fracOf(p)));
       const tNode = i === 0 ? at : t;
-      const c = paper(svgEl("circle", { cx: p[0], cy: p[1], r: 16, fill: C.purpleBlack, stroke: C.lavender, "stroke-width": 6 }, s));
+      const c = paper(svgEl("circle", { cx: p[0], cy: p[1], r: 16, fill: C.purpleBlack, stroke: col, "stroke-width": 6 }, s));
       gsap.set(c, { transformOrigin: "50% 50%" }); hide(c);
       tl.fromTo(c, { autoAlpha: 0, scale: 0.2 }, { autoAlpha: 1, scale: 1, duration: 0.35, ease: K.EASE.settle, immediateRender: false }, tNode);
       if (labels[i]) K.tag(parent, labels[i], { x: p[0], y: p[1] + (o.labelBelow ? 62 : -62), at: tNode + 0.05, lav: i === solid.length - 1 && !o.ghost, sfx: o.sfx === false || !i || K.cues.some((c) => Math.abs(c.t - tNode - 0.05) < 0.3) ? false : undefined });
@@ -521,8 +522,8 @@
     });
     if (ghost > 0) {
       const gp = pts[ghost], last = solid[solid.length - 1];
-      const gd = svgEl("path", { d: `M${last[0]},${last[1]} L${gp[0]},${gp[1]}`, fill: "none", stroke: rgba(C.lavender, 0.45), "stroke-width": 6, "stroke-dasharray": "4 18", "stroke-linecap": "round" }, s);
-      const gc = svgEl("circle", { cx: gp[0], cy: gp[1], r: 24, fill: "none", stroke: rgba(C.lavender, 0.55), "stroke-width": 4, "stroke-dasharray": "6 8" }, s);
+      const gd = svgEl("path", { d: `M${last[0]},${last[1]} L${gp[0]},${gp[1]}`, fill: "none", stroke: rgba(col, 0.45), "stroke-width": 6, "stroke-dasharray": "4 18", "stroke-linecap": "round" }, s);
+      const gc = svgEl("circle", { cx: gp[0], cy: gp[1], r: 24, fill: "none", stroke: rgba(col, 0.55), "stroke-width": 4, "stroke-dasharray": "6 8" }, s);
       const tg = at + dur + 0.25;
       hide(gd); hide(gc);
       tl.fromTo(gd, { autoAlpha: 0, clipPath: "inset(0 0 0 100%)" }, { autoAlpha: 1, clipPath: "inset(0 0 0 0%)", duration: 0.5, ease: K.EASE.lift, immediateRender: false }, tg);
