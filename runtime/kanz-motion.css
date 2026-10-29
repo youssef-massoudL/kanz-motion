@@ -1,0 +1,40 @@
+/* Kanz motion layer (2026-10-30): opt-in, loaded after kanz-look.css. Only classes kanz-motion.js creates live here,
+ * so projects that never call K.motion() render exactly as before. Every colour is a brand token (brand/tokens.json)
+ * or a mix of two of them; see docs/MOTION-LANGUAGE.md "Material". */
+
+/* atmosphere: a canvas under the world (moving light + depth dust), drawn per frame by K.mx.atmos */
+#kmx-atmos{position:absolute;inset:0;z-index:0;pointer-events:none}
+
+/* generated SVG pieces sit in board pixels and may overflow their box (falls, glows) */
+svg.kmx{position:absolute;overflow:visible;pointer-events:none}
+svg.kmx text{font-family:var(--head);font-weight:700}
+
+/* the brand surface: purple-black glass with a lavender rim light from the top */
+.kmx-panel{position:absolute;border-radius:30px;overflow:hidden;
+  background:linear-gradient(168deg,#2c173b 0%,#1b0f27 55%,#11081a 100%);
+  box-shadow:0 44px 90px rgba(0,0,0,.55),0 10px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 1.5px rgba(213,173,239,.13)}
+.kmx-panel.charcoal{background:linear-gradient(168deg,#2c2a31 0%,#1d1c21 60%,#161519 100%)}
+.kmx-panel::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 85% 55% at 70% 0%,rgba(213,173,239,.17),rgba(213,173,239,0) 70%)}
+
+/* rolling numbers (odometer) */
+.kmx-roll{display:flex;align-items:flex-start;line-height:1.1;white-space:nowrap}
+.kmx-slot{display:inline-block;overflow:hidden;height:1.1em;width:.6em;text-align:center;flex:none}
+.kmx-col{display:flex;flex-direction:column}
+.kmx-col>span{display:block;height:1.1em;line-height:1.1em}
+.kmx-col>span::before,.kmx-affix::before{content:attr(data-d)}
+.kmx-affix{display:inline-block;line-height:1.1em;flex:none}
+.kmx-affix.small{font-size:.55em;line-height:2em;margin:0 .08em}
+
+/* kinetic words */
+.t.kmx-words{display:flex;flex-wrap:wrap;justify-content:center;column-gap:.24em;white-space:normal}
+.kmx-w{display:inline-block;position:relative}
+.kmx-ul{position:absolute;left:-.03em;right:-.03em;bottom:-.06em;height:.085em;border-radius:.05em;
+  background:linear-gradient(90deg,#966eae,#d5adef);transform-origin:100% 50%}
+
+/* a pool of light that follows attention */
+.kmx-light{position:absolute;border-radius:50%;pointer-events:none;mix-blend-mode:screen;
+  background:radial-gradient(circle at center,rgba(213,173,239,.30) 0%,rgba(150,110,174,.14) 36%,rgba(56,16,77,0) 70%)}
+
+/* the paper world: the atmosphere steps back */
+#stage[data-world=paper] #kmx-atmos{opacity:0}

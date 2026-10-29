@@ -1,0 +1,19 @@
+{
+  "_format": "One entry per reference. Media files go in library/references/media/ (local only, git-ignored). See README.md.",
+  "references": [
+    {
+      "id": "example-fill-to-the-line",
+      "status": "example",
+      "file": "media/example.mp4",
+      "url": "",
+      "source": "who made it, where it was seen",
+      "added": "2026-10-30",
+      "idea_types": ["value-change"],
+      "take": ["how the liquid overshoots the line and settles back", "the number riding the surface"],
+      "leave": ["their colours", "their typeface"],
+      "timestamps": ["0:04-0:07"],
+      "built_as": "",
+      "notes": "Delete this example once a real reference is added."
+    }
+  ]
+}

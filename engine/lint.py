@@ -71,6 +71,7 @@ SAFE = {"top": 270, "bottom": 1440, "left": 120, "right": 960, "upperLeft": 65, 
 TEXT = "#world .t, #world .head, #world .tag, #world .card, #world .kcount, #world .ksrc, #headline .w, #overlay .t, .kcounter, [data-role=counter]"
 COVER = "#world .t, #world .tag, #headline .w"  # labels that must stay readable (2026-10-13)
 OBJS = "#world img.obj,#world .kdoc, #world .kphoto, #world .ksnap, #world img.kmap, #world svg.mk path, #world svg.mk line, #world svg.mk polyline, #world svg.mk rect, #world .kpin, #world .kmark, #world .kframe, #world .abs, img#logo, img[src*=logo]"
+OBJS += ", #world svg.kmx path, #world svg.kmx polygon, #world svg.kmx rect, #world svg.kmx circle, #world .kmx-panel"  # motion layer (2026-10-30)
 OCCLUDERS = "img.obj, .abs, .card, svg.mk path, svg.mk polyline, svg.mk rect, .kframe, .kmark"
 
 # Runtime helpers are observed before scene.js runs, without modifying runtime or project files.
@@ -115,7 +116,7 @@ PROBE = """(t) => {
     return o; };
   const take = (sel, kind) => document.querySelectorAll(sel).forEach((el) => {
     if (el.closest('#safeguide')) return;
-    if (el.matches('.kshadow, .kglow, .kfg')) return;
+    if (el.matches('.kshadow, .kglow, .kfg, .kmx-light') || el.closest('defs')) return;
     let r = el.getBoundingClientRect();
     const cs = getComputedStyle(el);
     if (el instanceof SVGElement && cs.stroke !== 'none' && (r.width === 0 || r.height === 0)) {

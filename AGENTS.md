@@ -4,6 +4,10 @@ This repo turns a voice note, a written script or a long Kanz video into Kanz Re
 (`github.com/yasserr98/kanz-motion`), **public**: anyone can clone it. In Ahmed's copy it sits inside the Kanz working
 folder (`D:\Claude Projects\Kanz\kanz-motion`); the private Kanz repo around it holds brand authority, delivery and logs.
 
+**Owner since 2026-10-30: Youssef.** The main engine is his fork, `github.com/youssef-massoudL/kanz-motion` (remote
+`fork`, branch `main`): build on it and push there, never to `origin` (`yasserr98`, the original). Earlier decisions in
+DECISIONS.md stay in force until he changes them; engine decisions from 2026-10-30 on are his.
+
 **Rules in force: [docs/RULES.md](docs/RULES.md)** (one line each, with the ids lint and reviews cite). Ahmed's dated
 decisions and what each replaced: [docs/DECISIONS.md](docs/DECISIONS.md). If a doc, an old project or an example
 disagrees with RULES.md, RULES.md wins.
@@ -14,7 +18,9 @@ disagrees with RULES.md, RULES.md wins.
    [shorts](docs/routes/shorts.md), and [the image pass](docs/routes/images.md).
 2. The worked example's `scene.js`: `examples/us-dollar-decisions-pace` (voice note or script) or
    `examples/short-house-always-wins` (shorts). Never copy an older project: most predate pace.
-3. Look up components in `docs/LOOK-V2.md` / `docs/PACE.md` when you use them, not up front.
+3. **[docs/MOTION-LANGUAGE.md](docs/MOTION-LANGUAGE.md)** before writing a scene: the motion layer is the main engine
+   for graphics (MOT rules): pick the generated piece (`K.mx.*`) that carries each line; library objects only for a
+   plain thing. Then look up components in `docs/LOOK-V2.md` / `docs/PACE.md` when you use them, not up front.
    `docs/VOX-RESEARCH-FINDINGS.md` is historical background, not required.
 
 ## Which copy you are in
@@ -35,7 +41,7 @@ Work in this folder, even if the chat opened in the Kanz repo or a Kanz worktree
 4. **Image pass.** `shots.json` from the whole script, a visual type per shot, Codex generates, before the scene is
    written ([images](docs/routes/images.md); IMG, OBJ rules).
 5. **Scene.** Copy the worked example's `scene.js` and adapt it; new projects start from `projects/_template`.
-   `K.look()`, `K.pace({ defaults: "2026-10-18" })`, `K.finish()` last (PACE-1, PACE-2). Open on a moving
+   `K.look()`, `K.pace({ defaults: "2026-10-18" })`, `K.motion()`, `K.finish()` last (PACE-1, PACE-2, MOT-1..4). Open on a moving
    illustration (a drawn scene), never a still photo or static icon (HOOK-1..4); no idle motion (PACE-9). Boards arrive built, one carried hero, no snap zooms
    (PACE-3..5), paper world at chapter turns, a moving last board that ends ~0.4 s after the last word, never a hook
    replay (PACE-6); shorts choose face or board by SHORT-7. Numbers as animated diagrams; ideas as drawn scenes

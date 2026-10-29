@@ -18,6 +18,9 @@ K.look(); // look v2 (docs/LOOK-V2.md): safe zones, light, contact shadows. Call
 // zooms. Switch one off with e.g. { defaults: "2026-10-18", fly: false }. 2026-10-18 adds the shorts defaults
 // (title and subtitles off his face, eased split moves, K.under breathing room; docs/RULES.md SHORT-4, -16, TXT-5)
 K.pace({ defaults: "2026-10-18" });
+// motion layer (docs/MOTION-LANGUAGE.md, MOT-1..4): generated on-brand pieces (K.mx.*), a motion signature seeded by
+// this folder's name, moving key light + depth dust, camera motion blur. Pick each line's piece from the guide's table.
+K.motion();
 // snake layout: neighbours 1,100 px apart in a row, rows 1,800 apart (closer rows show under the captions)
 const hook = K.board("hook", 0, 0), b2 = K.board("two", -1100, 0);
 K.cam(0, "hook");

@@ -378,3 +378,15 @@ existing runtime behavior. The four approved drawn-scene references are the expl
   **Replaces** cutting on Whisper word edges (`--exact-end` + `pauses.py fix`): `footage.py` snaps every edge into a
   measured pause or refuses the cut, and ship runs `joincheck.py` (the word each side of every cut, heard on the cut and
   on the uncut source). Hooks end where he actually pauses. Rules: SHORT-3, SHORT-13.
+
+## 2026-10-30
+
+- **Ownership.** Youssef took over Kanz Motion ("He left, I own this now") and made his fork
+  (`youssef-massoudL/kanz-motion`) the main engine going forward. Earlier decisions stay in force until he changes them.
+- **Motion layer is the main engine for graphics** (Youssef, after a review of the production system: the assets were
+  "rigid and 2d and the elements repeat a lot"). Keep the layout template; everything else gets "a little free roam";
+  reels look like one brand "but not like 100% templated"; build all new assets in the brand's colours, theme and style;
+  repeats only when intended: "Intention is retention and hooking the viewer and enriching the idea". The face share
+  varies with what is said (50% or more). `runtime/kanz-motion.js`, `K.motion()` on in both templates. Rules: MOT-1..4.
+- **Direction: Vox-like.** "Focusing on vox like style is good as well, Not everything needs to be 3d But the coin
+  transfer is nice". Rule: MOT-5.

@@ -52,3 +52,6 @@ examples/*/assets/codex/**/*.log
 projects/*/assets/half/
 examples/*/assets/half/
 .local-render.lock
+
+# motion references are other people's work: local only (REPO-1)
+library/references/media/

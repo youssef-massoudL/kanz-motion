@@ -39,6 +39,12 @@ voice note ─► transcribe (word timings) ─► cut retakes, tighten pauses, 
   photo of a person or moment as a disposable-camera print (no date). `engine/codex_assets.py` generates a video's
   photos and icons with Codex from `shots.json`; `engine/contrast.py` checks every headline on the rendered frame (4.5:1).
   The template loads it, so voice-note and script Reels use the same image-pass workflow as the shorts.
+- **Motion layer** (2026-10-30, opt-in, proposed): `K.motion({ seed })` (`runtime/kanz-motion.js`) adds generated,
+  on-brand pieces that visualize the line itself instead of a library PNG: kinetic headlines (`K.mx.words`), rolling
+  numbers, a value slab that breaks (`K.mx.shatter`), a vessel that fills or drains, rings, a risk gauge, money flows
+  and journey paths, plus a moving key light, depth dust and camera motion blur. Brand stays fixed, motion is seeded
+  per reel. Guide: [docs/MOTION-LANGUAGE.md](docs/MOTION-LANGUAGE.md); references it grows from:
+  `library/references/`; demo: `projects/_motion-demo`.
 - **Rendering** (quiz 2026-10-20, Q8): local by default, one Chromium job at a time across all checkouts.
   `KANZ_RENDER_HOST` alone never routes a job remotely. Only when Ahmed asks, add `--host` to
   `make.py render`, `ship` or `remix`; `--local` remains an accepted no-op.

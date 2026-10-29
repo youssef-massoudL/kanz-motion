@@ -48,6 +48,9 @@ scene but not render it).
 5. **Scene.** Adapt the worked example into the scaffold. In `index.html`, load `runtime/kanz-footage.js` after the
    existing runtime scripts and before `scene.js` (also `runtime/kanz-split.js` for workshops);
    `K.footage({dir: "assets/face", n, windows})`, with `n` from the extracted frame count.
+   - Graphics: `K.motion()` after `K.pace(...)` and the generated pieces from [MOTION-LANGUAGE.md](../MOTION-LANGUAGE.md)
+     (`K.mx.*`), one per line that needs it, each with its moment on the word (MOT-1..4). Load `runtime/kanz-motion.css`
+     and `runtime/kanz-motion.js` in `index.html` (the templates do; older and package projects add the two lines).
    - Subtitles are Egyptian Arabic throughout, translating any English he speaks (SHORT-14); script.md keeps the verbatim
      transcript in a comment for the record.
    - `K.pace({ defaults: "2026-10-18" })`. The first 3 s always show his face with the reel's title over it:

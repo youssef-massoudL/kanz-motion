@@ -18,6 +18,7 @@ const N = 720;                         // frames in assets/face (= assets/half),
 
 K.look();
 K.pace({ defaults: "2026-10-18" });
+K.motion(); // motion layer: K.mx.* pieces for the board halves (docs/MOTION-LANGUAGE.md, MOT-1..4)
 
 const s1 = C("الكلمة", 3);            // split after the 3 s title: the first mechanism
 const f1 = C("التالية");               // back to his face
