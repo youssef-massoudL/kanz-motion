@@ -1,6 +1,6 @@
 # Motion language: one brand, not one template
 
-> **Status (2026-10-30): the main engine for graphics** (Youssef; DECISIONS 2026-10-30, rules MOT-1..6 in
+> **Status (2026-10-30): the main engine for graphics** (Youssef; DECISIONS 2026-10-30, rules MOT-1..7 in
 > [RULES.md](RULES.md)). `runtime/kanz-motion.js` + `kanz-motion.css`; both templates call `K.motion()`. Projects that
 > never call it (everything made before) render exactly as before. Worked demo: `projects/_motion-demo/` (no voice,
 > every piece once). **Direction:** Vox-like and flat by default (`look: "flat"`, cut paper and drawn edges); the
@@ -52,6 +52,10 @@ Retention is the reason a graphic exists. Every piece answers three questions be
 2. **What does the viewer see change?** The piece's moment (the break, the fill, the needle crossing red) lands on
    the word that says it. A piece with no moment is decoration.
 3. **When does it leave?** On screen while its line lasts, then his face again. Face share stays 50% or more (SHORT-15).
+4. **Is he on screen with it?** A graphic shares the screen with him in the 50/50 split, or cuts in alone for **3 s at
+   most** and cuts back to him (MOT-7, lint `board-alone`). A longer explanation alternates: split, alone, split. Lay
+   the board out for both views: in the split it shows at 0.8 above the seam where the subtitles sit, so keep its
+   pieces in the upper three quarters of the board, and push the camera in only on the alone beats.
 
 | He is saying | Device | Kit piece |
 | --- | --- | --- |
@@ -165,6 +169,6 @@ The kit is meant to grow from what you point at, not from guesses. The loop:
 
 ## 8. Rules
 
-MOT-1..6 in [RULES.md](RULES.md) ("Motion layer"). The atmosphere moves light and texture behind the pictures, never
+MOT-1..7 in [RULES.md](RULES.md) ("Motion layer"). The atmosphere moves light and texture behind the pictures, never
 the pictures, so PACE-9 still holds; `K.motion({ atmos: false })` turns it off for one reel, `{ atmos: { dust: 0 } }`
 keeps only the light.

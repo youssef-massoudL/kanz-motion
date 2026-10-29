@@ -11,6 +11,7 @@ SFX_GAP = 0.3          # s: cues closer than this stack (SND-5)
 SFX_REACH = 0.25       # s: a cue this far from any visual event lands on nothing
 FREEZE_SHOWN = 0.12    # s (3 frames) of a freeze inside a face/split window is visible
 FACE_SHARE = 0.5       # workshop shorts: his face on screen at least this share of the runtime (SHORT-15)
+BOARD_ALONE = 3.0      # motion-layer shorts: longest a graphic may hold the screen without him (MOT-7)
 WORD_EDGE = 0.03       # s: a cut this far inside a word is a cut in the word (SHORT-16)
 
 
@@ -63,6 +64,8 @@ def outside_title(start, end, title_end=TITLE_END):
 def excusable(finding, title_end=TITLE_END, limit=EMPTY_LIMIT):
     """lint-ok.json may not excuse an empty stretch (dead / fill) over `limit` s outside the title window (P1-7:
     "empty seconds on screen" kept coming back as justified findings)."""
+    if finding.get("kind") == "board-alone":  # MOT-7: fixed by recutting, never waived
+        return False
     if finding.get("kind") not in ("dead", "fill"):
         return True
     return outside_title(finding.get("from", 0), finding.get("to", 0), title_end) <= limit
@@ -189,6 +192,19 @@ def face_share_findings(face_windows, split_windows, duration, live, share=FACE_
     got = face_share(face_windows, split_windows, duration)
     if (live or profile >= "2026-10-18") and got + 1e-6 < share:
         out.append(dict(kind="face-share", t=0, why=f"his face shows {got:.0%} of {duration:.1f} s < {share:.0%} (SHORT-15)"))
+    return out
+
+
+def board_alone_findings(face_windows, split_windows, duration, limit=BOARD_ALONE):
+    """Graphics alone on screen (neither his full face nor the split) longer than `limit` s (`board-alone`, MOT-7):
+    graphics share the screen with him in the split, or cut in alone for a short beat and cut back to him. Stretches
+    merge, so a board can never hand on to another board. Never excusable in lint-ok.json: fix it by recutting."""
+    shown, out, t = window_union(list(face_windows or []) + list(split_windows or []), duration), [], 0.0
+    for a, b in shown + [[duration, duration]]:
+        if a - t > limit + 0.05:
+            out.append(dict(kind="board-alone", rule="MOT-7", **{"from": round(t, 2), "to": round(a, 2)},
+                            why=f"graphics alone for {a - t:.1f} s > {limit:.0f} s: split with him, or cut back to him (MOT-7)"))
+        t = max(t, b)
     return out
 
 

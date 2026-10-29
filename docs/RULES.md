@@ -115,6 +115,7 @@ In force since 2026-10-30 (Youssef). Guide: [MOTION-LANGUAGE.md](MOTION-LANGUAGE
 | MOT-4 | `K.motion()` turns on the moving key light, depth dust and camera motion blur; they move light and texture behind the pictures, never the pictures (PACE-9 holds); `K.motion({ atmos: false })` turns the atmosphere off for one reel | eye |
 | MOT-5 | Look: Vox-like and flat by default (`K.motion()`: flat brand colour, hard paper shadow, boiling drawn edges); `K.motion({ look: "gloss" })`, depth and 3D only where the idea needs it | eye |
 | MOT-6 | Never a light that follows the graphic (a moving light pool or spotlight on the focus); pieces carry their own lighting. `K.mx.light` is removed (a no-op) | lint `follow-light` (warn) |
+| MOT-7 | A graphic shares the screen with him (the 50/50 split) or cuts in alone for at most 3 s and cuts back to him (face or split); never a board on its own over 3 s, never a board handing on to another board. Lay boards out for both views (in the split the board shows at 0.8 above the seam, where the subtitles sit). Not waivable: recut | lint `board-alone` (motion-layer shorts) |
 
 ## Sound
 

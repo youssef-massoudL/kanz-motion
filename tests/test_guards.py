@@ -384,3 +384,14 @@ def test_freeze_detected_on_repeated_jpegs(tmp_path):
     runs = faces.freeze_runs(faces.frame_diffs(d), 24)
     assert len(runs) == 1 and runs[0][1] - runs[0][0] == pytest.approx(16 / 24, abs=0.05)
     subprocess.run  # noqa: B018 (ffmpeg is only needed for the skip condition's sibling tests)
+
+
+def test_board_alone_three_seconds():
+    # face 0-5, board 5-8 (3.0 s: fine), split 8-12, board 12-16 (4 s: too long), face 16-20
+    got = guards.board_alone_findings([[0, 5], [16, 20]], [[8, 12]], 20)
+    assert [(f["from"], f["to"]) for f in got] == [(12, 16)]
+    assert not guards.board_alone_findings([[0, 5], [16, 20]], [[8, 12], [12, 16]], 20)
+    # a board running into the end counts too
+    assert guards.board_alone_findings([[0, 10]], [], 14)
+    assert not guards.excusable({"kind": "board-alone", "from": 12, "to": 16})
+

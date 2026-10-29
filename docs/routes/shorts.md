@@ -49,7 +49,8 @@ scene but not render it).
    existing runtime scripts and before `scene.js` (also `runtime/kanz-split.js` for workshops);
    `K.footage({dir: "assets/face", n, windows})`, with `n` from the extracted frame count.
    - Graphics: `K.motion()` after `K.pace(...)` and the generated pieces from [MOTION-LANGUAGE.md](../MOTION-LANGUAGE.md)
-     (`K.mx.*`), one per line that needs it, each with its moment on the word (MOT-1..4). Load `runtime/kanz-motion.css`
+     (`K.mx.*`), one per line that needs it, each with its moment on the word (MOT-1..4); a graphic shares the screen
+     with him in the split or cuts in alone for at most 3 s, then back to him (MOT-7). Load `runtime/kanz-motion.css`
      and `runtime/kanz-motion.js` in `index.html` (the templates do; older and package projects add the two lines).
    - Subtitles are Egyptian Arabic throughout, translating any English he speaks (SHORT-14); script.md keeps the verbatim
      transcript in a comment for the record.

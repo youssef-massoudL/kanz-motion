@@ -33,6 +33,7 @@ Shorts cut from a long video (review hardening 2026-10-18, engine/guards.py):
   title           a footage short without K.title (SHORT-4)
   end-cut         K.duration ends before the voice (the last word cut off)
   face-share      a current cut-out short where his face shows under 50% of the runtime (SHORT-15; legacy: workshops)
+  board-alone     a motion-layer short where a graphic holds the screen without him over 3 s (MOT-7; never waivable)
   mid-word-cut    a face/split/board change inside a spoken word (SHORT-16)
   caption-switch  subtitles not on the seam exactly while the split shows (SHORT-12)
 Every scene: sfx-overlap (cues under 0.3 s apart), sfx-orphan (a cue on no visual event), stray-currency (a $ not on
@@ -597,6 +598,7 @@ SHORT_INFO = """() => ({ faces: (K.faceWindows || []).map(w => w.slice(0, 2)), s
   metadata: { faces: !!window.FACES?.face?.boxes?.length, half: !!window.FACES?.half?.boxes?.length,
     freezes: Array.isArray(window.FREEZES?.runs) },
   live: !!(((window.FACES || {}).kind === 'live') || (K.splitWindows || []).length), gap: K.GAP || 40,
+  motion: !!(K.MX && K.MX.on),
   cues: (K.cues || []).map(c => ({ t: c.t, cat: c.cat })),
   words: (window.TOKENS || []).filter(t => !t.tr && t.start != null).map(t => ({ w: t.w, start: t.start, end: t.end })) })"""
 SEAM = """(t) => { K.seek(t); const f = document.getElementById('splitface'), c = document.getElementById('captions');
@@ -646,6 +648,8 @@ def short_findings(page, frames, fine, step, every, defaults_on, profile=""):
         out += guards.freeze_findings(info["faces"], info["splits"], info["freezes"])
         out += guards.end_cut_findings(info["duration"], info["voice"], info["cut"])
         out += guards.face_share_findings(info["faces"], info["splits"], info["duration"], info["live"], profile=profile)
+        if info.get("motion"):  # motion-layer shorts (2026-10-30): no graphic alone over 3 s (MOT-7)
+            out += guards.board_alone_findings(info["faces"], info["splits"], info["duration"])
         edges = guards.window_edges(info["faces"], info["splits"], info["duration"])
         out += guards.mid_word_findings(edges, info["words"])
         seam = []
@@ -886,7 +890,7 @@ def main():
         for h in edge:
             print(f"    {h['from']:6.2f}-{h['to']:6.2f}s  {h['what']}")
         extra = ('digits', 'small-text', 'crowded-board', 'caption-repeat') if defaults_on else ()
-        extra += ('on-face', 'freeze', 'title', 'short-metadata', 'end-cut', 'face-share', 'face-overlap', 'mid-word-cut', 'caption-switch', 'sfx-overlap',
+        extra += ('on-face', 'freeze', 'title', 'short-metadata', 'end-cut', 'face-share', 'board-alone', 'face-overlap', 'mid-word-cut', 'caption-switch', 'sfx-overlap',
                   'sfx-orphan', 'stray-currency', 'tight-gap', 'headline-cross', 'long-tail', 'hook-replay', 'still-image', 'idle-motion', 'follow-light')
         for kind in ('text-on-text', 'covered-shape', 'caption-band', 'brief', 'half-built-arrival', 'markup-crossing-text', 'structure') + extra:
             hits = [h for h in new_findings if h['kind'] == kind]

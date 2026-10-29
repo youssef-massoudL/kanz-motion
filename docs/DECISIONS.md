@@ -392,6 +392,10 @@ existing runtime behavior. The four approved drawn-scene references are the expl
   transfer is nice". Rule: MOT-5.
 - **No light that follows the graphic** (Youssef, after Post 07 on the motion layer: "The bars are better with the right
   Lighting, also the light following the graphic Never add it"). `K.mx.light` removed from the kit. Rule: MOT-6.
+- **A graphic alone on screen: 3 s at most, then back to him** (Youssef: "Graphics alone on screen shouldn't exceed 3
+  sec", "Always mix the screen with both or cut to graphic and cut to speaker"). Lint `board-alone` (never waivable)
+  for shorts on the motion layer. Post 07 v4 recut its 13.8 s middle board into split / alone / split / alone.
+  Rule: MOT-7.
 - **Flat Vox look built** ("Yes do vox flat style"): `K.motion()` defaults to `look: "flat"` (flat brand fills, hard
   paper shadow, edges that boil like the drawn marks, pop arrivals, no dust); the first glossy material stays as
   `look: "gloss"`. Rule: MOT-5.
