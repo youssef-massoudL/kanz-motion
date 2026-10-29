@@ -124,8 +124,11 @@ def clean(series, thresh):
     if ok.sum() < 3:
         return None
     med = np.array([np.nanmedian(a[max(0, i - 4):i + 5]) for i in range(len(a))])
+    raw = a.copy()
     a[np.abs(a - med) > thresh] = np.nan
     ok = ~np.isnan(a)
+    if not ok.any():  # a short range with a few far-apart detections: every one looked like an outlier, keep them
+        a, ok = raw, ~np.isnan(raw)
     return np.interp(np.arange(len(a)), np.flatnonzero(ok), a[ok])
 
 
