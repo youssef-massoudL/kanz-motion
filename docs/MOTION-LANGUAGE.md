@@ -1,10 +1,11 @@
 # Motion language: one brand, not one template
 
-> **Status (2026-10-30): the main engine for graphics** (Youssef; DECISIONS 2026-10-30, rules MOT-1..5 in
+> **Status (2026-10-30): the main engine for graphics** (Youssef; DECISIONS 2026-10-30, rules MOT-1..6 in
 > [RULES.md](RULES.md)). `runtime/kanz-motion.js` + `kanz-motion.css`; both templates call `K.motion()`. Projects that
 > never call it (everything made before) render exactly as before. Worked demo: `projects/_motion-demo/` (no voice,
-> every piece once). **Direction:** Vox-like and flat by default; depth and 3D only where the idea needs it (MOT-5). The
-> first pieces lean glossy: moving them toward paper and drawn strokes is the next pass.
+> every piece once). **Direction:** Vox-like and flat by default (`look: "flat"`, cut paper and drawn edges); the
+> glossy look (`look: "gloss"`) and depth only where the idea needs it (MOT-5). Never a light that follows the graphic
+> (MOT-6).
 
 ## Why this exists
 
@@ -62,7 +63,7 @@ Retention is the reason a graphic exists. Every piece answers three questions be
 | a level: risk, leverage, emotion | a needle swings, red past the limit | `K.mx.gauge` |
 | a journey, a timeline, start and end | a line draws, the unknown end is dashed | `K.mx.path` |
 | the claim, the question, the thesis | the words themselves land | `K.mx.words` |
-| "look here" | the light moves to it | `K.mx.light` |
+| "look here" | a drawn mark on it, or the camera moves to it (never a light that follows it, MOT-6) | `K.oval`, `K.underline`, `K.frame` |
 
 Record the intent in the call (`idea`, `why`) or with `K.mx.intent({at, out, idea, device, why})`; the list is in
 `window.__motion.intents` for review. **Repeats are fine when they are meant**: the same vessel across one reel (a
@@ -71,13 +72,26 @@ the thing this layer replaces.
 
 ## 4. Material: how generated pieces look
 
-- **Surface** (`K.mx.panel`, the vessel body): purple-black glass, a 1 px top highlight, a lavender rim light from
-  above, a deep soft shadow. `tone: "charcoal"` for the neutral or "other side" (the broker, not you).
-- **Value fill**: a lavender gradient from `lavLight` to `lavShade` with a glass highlight strip on the left.
-- **Loss fill**: the same gradient in red, used only once something is lost.
-- **Light**: the atmosphere's key light drifts slowly behind the world; `K.mx.light` slides a lavender pool to the focus.
-- **Depth**: dust motes at three depths move with the camera (parallax); camera moves get a directional motion blur
-  that peaks mid-move. Glows (`#kmx-glow`) only on what is active: a path's head, a crack.
+Two looks share one set of pieces; `K.motion()` uses **flat**, `K.motion({ look: "gloss" })` the other for a reel (or a
+rare beat) whose idea needs depth. Pieces carry their own lighting: there is **no light that follows the graphic**
+(MOT-6; `K.mx.light` is gone, the call draws nothing and lint warns `follow-light`).
+
+**Flat (default, Vox-like cut paper)**
+- **Fills**: one flat brand colour per shape: lavender for value, red only once something is lost, purple surface
+  `#281339` for containers and panels (`tone: "charcoal"` for the other side: the broker, not you).
+- **Edges**: every shape boils like the engine's hand-drawn marks (`#kmx-ink`, re-drawn 8 times a second), so a vessel
+  or a slab looks cut and drawn, not rendered. Lines (paths, ticks) are ink strokes.
+- **Shadow**: a hard drop shadow 9 px straight down (`#kmx-paper` = boil + shadow): paper on paper, no soft glow.
+- **Arrivals**: a pop or slide with a small overshoot (`back.out(1.4)`), no blur.
+- In code: `K.mx.paper(el)` / `K.mx.ink(el)` give a new piece the same material; `K.mx.flat()` says which look is on.
+
+**Gloss (on request)**
+- Gradients from `lavLight` to `lavShade` (red the same way for loss), glass highlight strips and rim lights, soft
+  glows on what is active (a path's head, a crack), arrivals out of a soft blur, dust motes in the atmosphere.
+
+**Both**
+- **Atmosphere**: a soft key light drifts slowly behind the whole world (it follows nothing); dust only in gloss.
+- **Camera**: real camera moves get a directional motion blur that peaks mid-move.
 - **Type in pieces**: numbers in Thmanyah Display; labels with `K.text` / `K.tag` so lint reads them.
 
 ## 5. How Kanz moves (motion tokens)
@@ -88,13 +102,13 @@ the thing this layer replaces.
 | `K.EASE.lift` | power4.out | text and panels revealed |
 | `K.EASE.snap` | back.out(1.5) | small emphatic pieces (tags, nodes) |
 | `K.EASE.settle` | back.out(2.2) | needles and values that overshoot once, then stop |
-| `K.EASE.glide` | sine.inOut | light and slow reframes |
+| `K.EASE.glide` | sine.inOut | slow reframes |
 | `K.EASE.fall` | power2.in | what is lost drops away |
 | `K.EASE.flow` | power2.inOut | money and paths travelling |
 
 Durations: `K.DUR.quick` 0.28 s, `beat` 0.5, `hold` 0.8, `long` 1.2; word stagger `K.STAGGER` 0.07 s.
 
-Principles: arrivals come out of a soft blur (a camera finding focus, not a pop); what is lost falls with gravity, it
+Principles: arrivals land like paper (a pop with a small overshoot; in gloss, out of a soft blur); what is lost falls with gravity, it
 does not fade; a value that changes rolls, it does not swap; the surface of a liquid moves only after it was
 disturbed, then settles. **Kept from the rules:** no idle float, bob or wobble on pictures (PACE-9), no snap zooms
 (PACE-5), none of the rejected ground plane, coin toss, isometric bars or depth camera (LOOK-6), clean cuts to and
@@ -118,7 +132,6 @@ Positions are board pixels; every piece takes `at`, most take `out`, `idea`, `wh
 | `K.mx.path(b, {points, ghost, labels, labelBelow, nodes, at, dur})` | a line draws with a lit head, nodes pop as it passes (`nodes`: only these point indices); `ghost: true` makes the last point a dashed unknown |
 | `K.mx.coin(b, {x, y, size, symbol, at})` | one brand coin, the flow's coin on its own ("the same dollars") |
 | `K.mx.panel(b, {x, y, w, h, at, tone})` | the brand surface to hold other pieces |
-| `K.mx.light(b, {x, y, size, at})` | a light pool; `.to(t, x, y, size)`, `.out(t)` |
 | `K.mx.enter(el, t, {style})` / `K.mx.exit(el, t)` | the brand entrance and exit for any element |
 
 Rolling numbers sit in a left-to-right box: an Arabic unit goes in `prefix` so it lands on the number's left and reads
@@ -152,6 +165,6 @@ The kit is meant to grow from what you point at, not from guesses. The loop:
 
 ## 8. Rules
 
-MOT-1..5 in [RULES.md](RULES.md) ("Motion layer"). The atmosphere moves light and texture behind the pictures, never
+MOT-1..6 in [RULES.md](RULES.md) ("Motion layer"). The atmosphere moves light and texture behind the pictures, never
 the pictures, so PACE-9 still holds; `K.motion({ atmos: false })` turns it off for one reel, `{ atmos: { dust: 0 } }`
 keeps only the light.

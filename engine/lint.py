@@ -45,6 +45,7 @@ Endings and explanations (re-do review 2026-10-18, engine/guards.py):
   still-image  a WARNING: over 2 s of speech while the only picture on screen is one unchanging icon (EXPL-2); it is
                listed but never counts as unjustified, so --strict does not fail on it
   idle-motion  a WARNING: float in scene.js with the 2026-10-18 defaults (PACE-9); legacy float still works
+  follow-light a WARNING: K.mx.light in scene.js (MOT-6: never a light that follows the graphic; it draws nothing)
 Dead and fill findings exclude the simple hook (t < K.captionsFrom) and K.footage / K.split windows. lint-ok.json cannot
 excuse a dead or fill stretch of more than 1.5 s outside the 0-3 s title window.
 Writes out/lint.json and, when there are findings, out/lint.jpg. Exit code defaults to 0.
@@ -456,6 +457,9 @@ def static_scene_findings(source, profile=""):
             if m[1] == 'true' or float(m[1]) != 0:
                 out.append(dict(kind='idle-motion', t=0, rule='PACE-9', level='warn',
                                 why='pictures arrive and sit still, including the hook hero; remove float (PACE-9)'))
+    if re.search(r'\bK\s*\.\s*mx\s*\.\s*light\s*\(', code):
+        out.append(dict(kind='follow-light', t=0, rule='MOT-6', level='warn',
+                        why='no light that follows the graphic (MOT-6): remove K.mx.light; pieces carry their own lighting'))
     def add(why, **extra):
         out.append(dict(kind='structure', t=0, why=why, **extra))
     if 'footage' in calls and 'title' not in calls:
@@ -883,7 +887,7 @@ def main():
             print(f"    {h['from']:6.2f}-{h['to']:6.2f}s  {h['what']}")
         extra = ('digits', 'small-text', 'crowded-board', 'caption-repeat') if defaults_on else ()
         extra += ('on-face', 'freeze', 'title', 'short-metadata', 'end-cut', 'face-share', 'face-overlap', 'mid-word-cut', 'caption-switch', 'sfx-overlap',
-                  'sfx-orphan', 'stray-currency', 'tight-gap', 'headline-cross', 'long-tail', 'hook-replay', 'still-image', 'idle-motion')
+                  'sfx-orphan', 'stray-currency', 'tight-gap', 'headline-cross', 'long-tail', 'hook-replay', 'still-image', 'idle-motion', 'follow-light')
         for kind in ('text-on-text', 'covered-shape', 'caption-band', 'brief', 'half-built-arrival', 'markup-crossing-text', 'structure') + extra:
             hits = [h for h in new_findings if h['kind'] == kind]
             print(f'  {kind}: {len(hits)} finding(s)')

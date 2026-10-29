@@ -113,7 +113,8 @@ In force since 2026-10-30 (Youssef). Guide: [MOTION-LANGUAGE.md](MOTION-LANGUAGE
 | MOT-2 | New graphics are generated in brand material (`K.mx.*`, `K.BRAND` tokens and mixes of two tokens, the shared gradients); no new hues, no stock graphics; library objects only for a plain thing | eye |
 | MOT-3 | Each reel has its own seeded motion signature (`K.motion()`, seeded by the project folder); a repeated piece or object is intentional (a carried hero, a series signature), never filler | eye, `window.__motion.choices` |
 | MOT-4 | `K.motion()` turns on the moving key light, depth dust and camera motion blur; they move light and texture behind the pictures, never the pictures (PACE-9 holds); `K.motion({ atmos: false })` turns the atmosphere off for one reel | eye |
-| MOT-5 | Look: Vox-like and flat by default (paper, drawn strokes, editorial); depth and 3D only where the idea needs it | eye |
+| MOT-5 | Look: Vox-like and flat by default (`K.motion()`: flat brand colour, hard paper shadow, boiling drawn edges); `K.motion({ look: "gloss" })`, depth and 3D only where the idea needs it | eye |
+| MOT-6 | Never a light that follows the graphic (a moving light pool or spotlight on the focus); pieces carry their own lighting. `K.mx.light` is removed (a no-op) | lint `follow-light` (warn) |
 
 ## Sound
 

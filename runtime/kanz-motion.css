@@ -32,9 +32,13 @@ svg.kmx text{font-family:var(--head);font-weight:700}
 .kmx-ul{position:absolute;left:-.03em;right:-.03em;bottom:-.06em;height:.085em;border-radius:.05em;
   background:linear-gradient(90deg,#966eae,#d5adef);transform-origin:100% 50%}
 
-/* a pool of light that follows attention */
-.kmx-light{position:absolute;border-radius:50%;pointer-events:none;mix-blend-mode:screen;
-  background:radial-gradient(circle at center,rgba(213,173,239,.30) 0%,rgba(150,110,174,.14) 36%,rgba(56,16,77,0) 70%)}
 
 /* the paper world: the atmosphere steps back */
 #stage[data-world=paper] #kmx-atmos{opacity:0}
+
+/* the flat look (default, MOT-5): Vox cut paper. One flat surface colour, a hard drop shadow, no sheen; the keyword
+   underline is a flat lavender marker stroke whose edge boils like the engine's drawn marks */
+#stage.kmx-flat .kmx-panel{background:#281339;box-shadow:0 12px 0 rgba(8,7,11,.5);filter:url(#kmx-ink)}
+#stage.kmx-flat .kmx-panel.charcoal{background:#26242a}
+#stage.kmx-flat .kmx-panel::before{display:none}
+#stage.kmx-flat .kmx-ul{background:#d5adef;height:.1em;border-radius:.05em;filter:url(#kmx-ink)}

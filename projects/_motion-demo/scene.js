@@ -10,7 +10,6 @@ const A = K.board("loss", 0, 0), B = K.board("back", -1100, 0), C = K.board("fee
 K.cam(0, "loss");
 
 // 1. «خسرت 50٪؟»: the balance itself breaks, the lost half falls away, the number follows it down
-K.mx.light(A, { x: 500, y: 560, size: 760, at: 0 });
 K.mx.words(A, "خسرت *50٪*؟", { x: 500, y: 110, size: 112, at: 0.1 });
 K.mx.shatter(A, { x: 500, y: 820, w: 250, h: 460, keep: 0.5, from: 100, to: 50, prefix: "$", at: 0.35, breakAt: 1.9,
   idea: "a 50% loss is half your money gone", why: "the loss happens on screen at the word, not as a label" });
@@ -40,10 +39,8 @@ K.mx.flow(C, { from: [700, 470], to: [300, 470], at: 10.1, until: 12.3, rate: 5,
 // 4. «حجم المخاطرة»: one trade with the whole account pushes the needle into red
 K.cam(13.6, "risk", { dur: 0.55 });
 K.mx.words(D, "حجم *المخاطرة*", { x: 500, y: 110, size: 104, at: 13.75 });
-const L = K.mx.light(D, { x: 500, y: 520, size: 700, at: 13.7 });
 K.mx.gauge(D, { x: 500, y: 640, r: 270, value: 0.88, at: 13.9, danger: 0.7, label: "صفقة بالحساب كله",
   idea: "all-in sizing is extreme risk", why: "the needle crossing into red is the moment of the line" });
-L.to(15.0, 760, 470, 560);
 
 // 5. «بدأت منين؟ ورايح فين؟»: the path draws from the start; the end is still a dashed question
 K.cam(17.8, "path", { dur: 0.55 });

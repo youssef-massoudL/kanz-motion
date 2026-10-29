@@ -390,3 +390,8 @@ existing runtime behavior. The four approved drawn-scene references are the expl
   varies with what is said (50% or more). `runtime/kanz-motion.js`, `K.motion()` on in both templates. Rules: MOT-1..4.
 - **Direction: Vox-like.** "Focusing on vox like style is good as well, Not everything needs to be 3d But the coin
   transfer is nice". Rule: MOT-5.
+- **No light that follows the graphic** (Youssef, after Post 07 on the motion layer: "The bars are better with the right
+  Lighting, also the light following the graphic Never add it"). `K.mx.light` removed from the kit. Rule: MOT-6.
+- **Flat Vox look built** ("Yes do vox flat style"): `K.motion()` defaults to `look: "flat"` (flat brand fills, hard
+  paper shadow, edges that boil like the drawn marks, pop arrivals, no dust); the first glossy material stays as
+  `look: "gloss"`. Rule: MOT-5.
