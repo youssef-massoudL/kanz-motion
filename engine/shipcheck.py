@@ -75,7 +75,8 @@ def last_word_end(proj):
 
 def tail(proj, mp4):
     """PACE-6: no silent tail after the last word on the rendered MP4."""
-    return ["tail: " + f["why"] for f in guards.tail_findings(duration(mp4), last_word_end(proj))]
+    src = (proj / "scene.js").read_text(encoding="utf-8") if (proj / "scene.js").exists() else ""
+    return ["tail: " + f["why"] for f in guards.tail_findings(duration(mp4), last_word_end(proj), guards.tail_limit(src))]
 
 
 def frames_rgb(mp4, t, n, size=THUMB):

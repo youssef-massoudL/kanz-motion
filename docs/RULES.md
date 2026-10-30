@@ -149,6 +149,7 @@ In force since 2026-10-30 (Youssef). Guide: [MOTION-LANGUAGE.md](MOTION-LANGUAGE
 | SHORT-16 | Every change to or from his full face is a clean cut (face <-> board and face <-> split), in a pause, never inside a word; no dissolve, crossfade or see-through frame anywhere. Split <-> full-screen board moves ease over 0.35 s (2026-10-18 defaults) | `mid-word-cut` |
 | SHORT-17 | No frozen source picture in a face or split window (a stalled stream reads as lag): `assets/freezes.json` from the footage tools lists stalls of 0.5 s or more; choose other source seconds or cover the stall with a full-screen board | `freeze`, ship duplicate frames |
 | SHORT-18 | In cut-out shorts, remove accidental stutters, false starts and repeated phrases where a natural cut preserves the meaning; no rewriting speech or deleting deliberate emphasis. Listen from source to final, record each cut and say which could not be removed | cut record, ear |
+| SHORT-19 | Q&A shorts (Package 04, `shorts/package-04/work/qakit.js`): the question bubble from `QA.ask` is the title (it calls `K.title`, SHORT-4 holds); graphics only in the 50/50 split with him, never alone; a reel that ends on the `QA.reply` board may run up to 3 s after the last word (the board is read there), the exception to PACE-6's 0.4 s; no attendee name on screen, captions included (write the line as `shown {{spoken}}`) | lint `title`, `long-tail`; ship `tail`; eye |
 
 ## Review
 

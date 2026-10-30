@@ -30,7 +30,7 @@ With the 2026-10-17 defaults on (K.pace({defaults: "2026-10-17"}), review sample
 Shorts cut from a long video (review hardening 2026-10-18, engine/guards.py):
   on-face         the title, a headline, overlay text or the subtitles over his eyes or mouth (window.FACES boxes)
   freeze          a face or split window showing a frozen source picture (window.FREEZES)
-  title           a footage short without K.title (SHORT-4)
+  title           a footage short without K.title (SHORT-4); a Q&A short's QA.ask counts (it calls K.title)
   end-cut         K.duration ends before the voice (the last word cut off)
   face-share      a current cut-out short where his face shows under 50% of the runtime (SHORT-15; legacy: workshops)
   board-alone     a motion-layer short where a graphic holds the screen without him over 3 s (MOT-7; never waivable)
@@ -41,7 +41,8 @@ the left of its digits), and with the 2026-10-17 defaults or later tight-gap (a 
 headline), and headline-cross (TXT-6: a panel/card edge, chart or grid line, object or block crossing a K.headline or
 starting less than K.GAP below its last line).
 Endings and explanations (re-do review 2026-10-18, engine/guards.py):
-  long-tail    the video runs more than 0.6 s after the last word (PACE-6: K.duration = tLast + 0.4)
+  long-tail    the video runs more than 0.6 s after the last word (PACE-6: K.duration = tLast + 0.4); a Q&A short
+               ending on QA.reply may run 3 s (the reply board is read after the last word)
   hook-replay  the last frame is on the hook board, or shows the hook's hero at 60% of its hook size or more (PACE-6)
   still-image  a WARNING: over 2 s of speech while the only picture on screen is one unchanging icon (EXPL-2); it is
                listed but never counts as unjustified, so --strict does not fail on it
@@ -463,7 +464,8 @@ def static_scene_findings(source, profile=""):
                         why='no light that follows the graphic (MOT-6): remove K.mx.light; pieces carry their own lighting'))
     def add(why, **extra):
         out.append(dict(kind='structure', t=0, why=why, **extra))
-    if 'footage' in calls and 'title' not in calls:
+    # a Q&A short's question bubble is its K.title (QA.ask calls it, shorts/package-04/work/qakit.js)
+    if 'footage' in calls and 'title' not in calls and not re.search(r'\bQA\s*\.\s*ask\s*\(', code):
         out.append(dict(kind='title', t=0, why='a footage short without K.title (SHORT-4: the first 3 s carry the title)'))
     if 'look' in calls:
         if 'pace' not in calls:
@@ -834,7 +836,8 @@ def main():
         # 9. the ending and explanations (re-do review 2026-10-18): no silent tail, no replay of the hook (PACE-6);
         #    no long still icon under the voice (EXPL-2, a warning)
         words = short["words"]
-        new_findings += guards.tail_findings(short["duration"] or scene_end, max((w["end"] for w in words), default=None))
+        new_findings += guards.tail_findings(short["duration"] or scene_end, max((w["end"] for w in words), default=None),
+                                             guards.tail_limit((proj / 'scene.js').read_text(encoding='utf-8')))
         if fine_times:
             new_findings += guards.replay_findings(sampled[fine_times[0]], sampled[t_end], t_end)
         new_findings += guards.still_image_findings(frames, words, skip=windows)

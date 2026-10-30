@@ -399,3 +399,8 @@ existing runtime behavior. The four approved drawn-scene references are the expl
 - **Flat Vox look built** ("Yes do vox flat style"): `K.motion()` defaults to `look: "flat"` (flat brand fills, hard
   paper shadow, edges that boil like the drawn marks, pop arrivals, no dust); the first glossy material stays as
   `look: "gloss"`. Rule: MOT-5.
+- **Q&A shorts get their own exception** (Youssef, on the Q&A template's lint: "apply it as a Q/A exception for
+  it's videos"). Lint and ship count `QA.ask` as the title and let a reel ending on the `QA.reply` board run 3 s
+  after the last word (PACE-6 stays 0.4 s for every other reel). Earlier on the template: graphics only in the split
+  with him ("make the animation split the screen with shaaban not cut completely"), the keyword in dark purple.
+  Rule: SHORT-19.

@@ -246,6 +246,8 @@ def end_cut_findings(duration, voice_end, cut):
 
 
 TAIL_LIMIT = 0.6       # s after the last word: the video ends ~0.4 s after it (PACE-6)
+QA_TAIL_LIMIT = 3.0    # a Q&A short's reply board (QA.reply, Package 04) is read after the last word: QA.TAIL 2.4 s + the cut
+QA_REPLY = re.compile(r"\bQA\s*\.\s*reply\s*\(")
 HERO_SHARE = 0.6       # the hook hero back at this share of its hook width or more is a replay (PACE-6)
 STILL_LIMIT = 2.0      # s of speech over one unchanging picture (EXPL-2)
 ICON = re.compile(r"\.png$", re.I)
@@ -259,6 +261,11 @@ def tail_findings(duration, last_word_end, limit=TAIL_LIMIT):
     return [dict(kind="long-tail", t=round(last_word_end, 3), rule="PACE-6",
                  why=f"the video runs {duration - last_word_end:.2f} s after the last word > {limit} s "
                      f"(PACE-6: K.duration = tLast + 0.4)")]
+
+
+def tail_limit(scene_src):
+    """PACE-6's tail, or the Q&A exception (Youssef 2026-10-30): a scene ending on QA.reply may run QA_TAIL_LIMIT."""
+    return QA_TAIL_LIMIT if QA_REPLY.search(scene_src or "") else TAIL_LIMIT
 
 
 def visible(frame, kinds=None):
